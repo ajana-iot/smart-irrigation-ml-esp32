@@ -62,15 +62,12 @@ Système d’arrosage intelligent basé sur **la prédiction de la quantité d�
 - `dataset/` → Données Excel
 - `ml_model/` → Modèle ML + TFLite
 - `esp32_code/` → Code Arduino
-- `hex_file/` → Firmware compilé
-- `images/` → Prototype
 - `schematic/` → Schémas
 
 ---
 
 ## 🚀 Perspectives
 - Application mobile
-- Cloud IoT
 - Prédiction multi-plantes
 - Historique des données
 - Notifications intelligentes
@@ -78,13 +75,7 @@ Système d’arrosage intelligent basé sur **la prédiction de la quantité d�
 ---
 
 ## 👤 Auteur
-- Nom : [Ton nom]
-- Formation : [Ta formation]
+- Nom : [ajana abdelali]
+- Formation : [Engineering student | Embedded electronics systems & controls]
 - Pays : Maroc
-- LinkedIn : [Lien]
-- GitHub : [Lien]
-
----
-
-## ⭐ Soutien
-N’oubliez pas de mettre une étoile ⭐ si le projet vous plaît !
+- LinkedIn : [www.linkedin.com/in/abdelali-ajana-27559127]
