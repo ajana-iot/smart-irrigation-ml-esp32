@@ -1,0 +1,105 @@
+import pandas as pd
+import numpy as np
+
+# =================================================
+# 1️⃣ Chargement du dataset
+# =================================================
+data = pd.read_excel(r"C:\Users\ajana\OneDrive\Desktop\dataset_irrigation_final_version_1.xlsx")
+
+# =================================================
+# 2️⃣ Séparation X / Y
+# =================================================
+X = data[[
+    "Température (°C)",
+    "HumiditéSol (%)",
+    "TempsDepuisIrrigation (h)",
+    "pH",
+    "Luminosité (lux)"
+]].values.astype(float)
+
+Y = data["VolumeEau (cl)"].values.reshape(-1, 1).astype(float)
+
+# =================================================
+# 3️⃣ NORMALISATION Min–Max SÉCURISÉE
+# =================================================
+X_min = X.min(axis=0)
+X_max = X.max(axis=0)
+
+Y_min = Y.min()
+Y_max = Y.max()
+
+# éviter division par zéro
+X_range = X_max - X_min
+X_range[X_range == 0] = 1
+
+Y_range = Y_max - Y_min
+if Y_range == 0:
+    Y_range = 1
+
+0\\0X_norm = (X - X_min) / X_range
+Y_norm = (Y - Y_min) / Y_range
+
+# =================================================
+# 4️⃣ Ajout du biais (b)
+# =================================================
+X_norm = np.hstack((np.ones((X_norm.shape[0], 1)), X_norm))
+
+# =================================================
+# 5️⃣ RÉGRESSION MANUELLE OPTIMISÉE
+# (pseudo-inverse → plus stable que inv)
+# =================================================
+theta = np.linalg.pinv(X_norm) @ Y_norm
+
+# =================================================
+# 6️⃣ Prédictions
+# =================================================
+Y_pred_norm = X_norm @ theta
+Y_pred = Y_pred_norm * Y_range + Y_min
+
+# =================================================
+# 7️⃣ MÉTRIQUES
+# =================================================
+mse = np.mean((Y - Y_pred) ** 2)
+
+ss_tot = np.sum((Y - Y.mean()) ** 2)
+ss_res = np.sum((Y - Y_pred) ** 2)
+r2 = 1 - (ss_res / ss_tot)
+
+print("\n✅ COEFFICIENTS DU MODÈLE :")
+print("b =", theta[0][0])
+print("a_Temp =", theta[1][0])
+print("a_HumSol =", theta[2][0])
+print("a_Temps =", theta[3][0])
+print("a_pH =", theta[4][0])
+print("a_Lum =", theta[5][0])
+
+print("\n📉 MSE =", mse)
+print("📈 R² =", r2)
+
+# =================================================
+# 8️⃣ Prédiction d’un nouveau point
+# =================================================
+temperature = 27.5
+humidite_sol = 58
+temps_depuis_irrigation = 0
+ph = 6.7
+luminosite = 500
+
+X_new = np.array([[temperature, humidite_sol, temps_depuis_irrigation, ph, luminosite]])
+
+X_new_norm = (X_new - X_min) / X_range
+X_new_norm = np.hstack((np.ones((1,1)), X_new_norm))
+
+Y_new_norm = X_new_norm @ theta
+Y_new = Y_new_norm * Y_range + Y_min
+
+print("\n🌊 Volume d'eau prédit =", float(Y_new[0][0]), "cl")
+
+# =================================================
+# 9️⃣ Sauvegarde du modèle
+# =================================================
+np.save("theta.npy", theta)
+np.save("Xmin.npy", X_min)
+np.save("Xmax.npy", X_max)
+np.save("Ymin.npy", Y_min)
+np.save("Ymax.npy", Y_max)
